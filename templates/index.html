@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fraud Detection — Predict</title>
+
+  <!-- Bootstrap CDN (simple clean UI) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    body { background: #f7fafc; padding-top: 32px; }
+    .card { box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .small-note { font-size: .9rem; color: #6b7280; }
+    .result-badge { font-size: 1rem; padding: .5rem 1rem; border-radius: .5rem; }
+    .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-10 col-lg-11 col-md-12">
+        <div class="card p-4">
+          <h3 class="mb-1">Fraud Detection — Predict</h3>
+          <p class="small-note mb-3">Enter transaction features and click <strong>Predict</strong>. The app will POST JSON to <code>/predict</code>.</p>
+
+          <form id="predict-form">
+            <!-- Feature inputs -->
+            <div class="mb-3">
+              <label class="form-label"><strong>Time</strong></label>
+              <input type="number" step="any" name="Time" class="form-control" value="0" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><strong>V1 … V28</strong></label>
+              <div class="field-grid">
+                <!-- Generate V1..V28 -->
+                <input type="number" step="any" name="V1" class="form-control" placeholder="V1" value="-1.3598071336738"/>
+                <input type="number" step="any" name="V2" class="form-control" placeholder="V2" value="-0.0727811733098497"/>
+                <input type="number" step="any" name="V3" class="form-control" placeholder="V3" value="2.53634673796914"/>
+                <input type="number" step="any" name="V4" class="form-control" placeholder="V4" value="1.37815522427443"/>
+                <input type="number" step="any" name="V5" class="form-control" placeholder="V5" value="-0.338320769942518"/>
+                <input type="number" step="any" name="V6" class="form-control" placeholder="V6" value="0.462387777762292"/>
+                <input type="number" step="any" name="V7" class="form-control" placeholder="V7" value="0.239598554061257"/>
+                <input type="number" step="any" name="V8" class="form-control" placeholder="V8" value="0.0986979012610507"/>
+                <input type="number" step="any" name="V9" class="form-control" placeholder="V9" value="0.363786969611213"/>
+                <input type="number" step="any" name="V10" class="form-control" placeholder="V10" value="0.0907941719789316"/>
+                <input type="number" step="any" name="V11" class="form-control" placeholder="V11" value="-0.551599533260813"/>
+                <input type="number" step="any" name="V12" class="form-control" placeholder="V12" value="-0.617800855762348"/>
+                <input type="number" step="any" name="V13" class="form-control" placeholder="V13" value="-0.991389847235408"/>
+                <input type="number" step="any" name="V14" class="form-control" placeholder="V14" value="-0.311169353699879"/>
+                <input type="number" step="any" name="V15" class="form-control" placeholder="V15" value="1.46817697209427"/>
+                <input type="number" step="any" name="V16" class="form-control" placeholder="V16" value="-0.470400525259478"/>
+                <input type="number" step="any" name="V17" class="form-control" placeholder="V17" value="0.207971241929242"/>
+                <input type="number" step="any" name="V18" class="form-control" placeholder="V18" value="0.0257905801985591"/>
+                <input type="number" step="any" name="V19" class="form-control" placeholder="V19" value="0.403992960255733"/>
+                <input type="number" step="any" name="V20" class="form-control" placeholder="V20" value="0.251412098239705"/>
+                <input type="number" step="any" name="V21" class="form-control" placeholder="V21" value="-0.018306777944153"/>
+                <input type="number" step="any" name="V22" class="form-control" placeholder="V22" value="0.277837575558899"/>
+                <input type="number" step="any" name="V23" class="form-control" placeholder="V23" value="-0.110473910188767"/>
+                <input type="number" step="any" name="V24" class="form-control" placeholder="V24" value="0.0669280749146731"/>
+                <input type="number" step="any" name="V25" class="form-control" placeholder="V25" value="0.128539358273528"/>
+                <input type="number" step="any" name="V26" class="form-control" placeholder="V26" value="-0.189114843888824"/>
+                <input type="number" step="any" name="V27" class="form-control" placeholder="V27" value="0.133558376740387"/>
+                <input type="number" step="any" name="V28" class="form-control" placeholder="V28" value="-0.0210530534538215"/>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><strong>Amount</strong></label>
+              <input type="number" step="any" name="Amount" class="form-control" value="149.62" />
+            </div>
+
+            <div class="d-flex gap-2 align-items-center">
+              <button id="predict-btn" type="button" class="btn btn-primary">Predict</button>
+              <button id="reset-btn" type="button" class="btn btn-outline-secondary">Reset</button>
+              <div id="loader" class="spinner-border text-primary ms-3" role="status" style="display:none; width: 1.5rem; height:1.5rem">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <hr/>
+
+            <div id="result" style="display:none;">
+              <h5>Prediction Result</h5>
+              <p id="prediction-text" class="mb-1"></p>
+              <p id="probability-text" class="mb-1"></p>
+              <div id="badge-container"></div>
+            </div>
+          </form>
+
+          <div class="mt-3 small-note">
+            Note: This form POSTs JSON to <code>/predict</code>. Make sure your API accepts JSON and the order/names of features match the model's training features.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS: Bootstrap bundle + fetch logic -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const predictBtn = document.getElementById('predict-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const loader = document.getElementById('loader');
+    const resultDiv = document.getElementById('result');
+    const predictionText = document.getElementById('prediction-text');
+    const probabilityText = document.getElementById('probability-text');
+    const badgeContainer = document.getElementById('badge-container');
+
+    function formToJson() {
+      const form = document.getElementById('predict-form');
+      const data = {};
+      // collect inputs except buttons and result area
+      const inputs = form.querySelectorAll('input[name]');
+      inputs.forEach(inp => {
+        const name = inp.getAttribute('name');
+        const val = inp.value;
+        // convert to number if possible
+        const num = Number(val);
+        data[name] = isNaN(num) ? val : num;
+      });
+      return data;
+    }
+
+    predictBtn.addEventListener('click', async () => {
+      resultDiv.style.display = 'none';
+      badgeContainer.innerHTML = '';
+      loader.style.display = 'inline-block';
+
+      const payload = formToJson();
+
+      try {
+        const resp = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error('Server error: ' + resp.status + ' — ' + text);
+        }
+
+        const json = await resp.json();
+
+        // Expecting { prediction: 0|1, fraud_probability: 0.x }
+        const pred = json.prediction;
+        const prob = json.fraud_probability ?? json.probability ?? json.prob;
+
+        predictionText.innerText = `Prediction: ${pred} (${pred === 1 ? 'Fraud' : 'Not Fraud'})`;
+        probabilityText.innerText = `Fraud Probability: ${Number(prob).toFixed(4)}`;
+
+        // badge
+        const badge = document.createElement('span');
+        badge.className = 'result-badge ' + (pred === 1 ? 'bg-danger text-white' : 'bg-success text-white');
+        badge.innerText = pred === 1 ? 'FRAUD' : 'NOT FRAUD';
+        badgeContainer.appendChild(badge);
+
+        resultDiv.style.display = 'block';
+      } catch (err) {
+        alert('Prediction error: ' + err.message);
+        console.error(err);
+      } finally {
+        loader.style.display = 'none';
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      document.getElementById('predict-form').reset();
+      resultDiv.style.display = 'none';
+      badgeContainer.innerHTML = '';
+    });
+  </script>
+</body>
+</html>

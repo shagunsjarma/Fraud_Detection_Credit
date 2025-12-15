@@ -1,0 +1,17 @@
+pandas 
+numpy 
+scikit-learn
+matplotlib
+seaborn
+keras
+ipykernel
+imblearn
+tensorflow
+xgboost
+logging 
+imbalanced-learn
+mlflow
+dill
+dvc
+dvc[s3]
+dagshub

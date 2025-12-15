@@ -1,0 +1,10 @@
+fenv/
+artifacts/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.vscode/
+logs/
+*.log
+dataset/
+*.csv
